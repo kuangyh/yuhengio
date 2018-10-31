@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+<title>A full stack engineer never allocates from heap</title>
+<meta charset="utf-8">
+<link href="../styles.css" rel="stylesheet">
+<link href='https://fonts.googleapis.com/css?family=Gentium+Basic:400,700' rel='stylesheet' type='text/css'>
+</head>
+<body>
+<div class="page" lang="zh-hans">
+<div class="header">
+<h1><a href="/">(call/cc</a></h1>
+<h2>Never say never</h2>
+</div>
+<div class="article">
+<h1>A full stack engineer never allocates from heap</h1>
+
+<p>「全栈工程师」就是生活可以自理的意思吧 —— 布丁。</p>
+
+<p>写了那么多年代码，得意的项目当然不少。不过今天想说的，是个很久远的简单小程序，久远到我还是一个青葱少年，久远到我还在百度，久远到我们刚发现百度需要一个基础技术平台，组建了一个小小的团队，开始憧憬诗和远方。我在其中，折腾的是一个叫「前端技术方向」的不明觉厉的东西。</p>
+
+<p>虽然当时我们连前端包括什么要研究什么问题都还没争论清楚，但是直接吐网页的前端服务器，肯定是包含其中吧，于是我开始看一个大产品的前端服务器。彼时的百度，这种要顶大流量的东西显然是用 C/C++（主要是 C, 呵呵）写的，虽然已经「高性能」了，这个前端服务瓶颈还是在 CPU, 说是给模板引擎压死了。</p>
+
+<p>这个状况相当合理，性能不是被IO线程模型之类压死那好像没啥好弄的。不过为了写报告，我还是看了一下模板引擎的代码。它大概就是把模板逐字节扫一遍，看到变量或者控制语法就回调做操作填内容，完了，简单直接。…… 等一下…… 模板是静态文件很少更新，我可以给变量位置做个 index, 把变量语义做个简单预解析吧？做上去，快了好象是 30%? 不错。发了晒数据邮件准备收工时，突然呆住了：既然我都做 index 了，我知道每段模板文本的确切长度，我为毛还要 strcpy 逐个字节拷我傻啊?</p>
+
+<p>5 分钟，全改成 memcpy, 顺手去掉几个重复内存分配和拷贝。然后就清净了，模板引擎benchmark快了几倍忘了，但综合起来整个服务器 QPS 稳定翻了两三倍模板引擎再也不是瓶颈是有的。百度长期抗拒用脚本语言做前端服务，性能是个重要因素，我后来还对同样语法做了个性能接近的 Python 实现，「C/C++ 就能高性能脚本语言搞不定」好像也没那么站得住脚了。</p>
+
+<p>结果，我为这个「前端技术方向」做的第一个改进是个非常底层的优化。我为这个小改动得意，就是因为这是个房间里的大象：问题是这么明显却没人去动，改了大家都觉得理所当然就该这样有什么难的，但它效果就是好得让你无话可说。</p>
+
+<p>我后来挖了个坟，看为什么这么明显的问题那么久都没人发现。跟百度很多代码一样，这个模板引擎源于大搜索。一开始，它只是一个比 printf 稍微好一点的库函数，模板都是代码字符串，还有根据后端返回动态拼接模板之类的操作，预处理之类的优化实际上是不可能的，老老实实逐字节做就好了。到后来，模板管理越来越规范，剥离出了模板文件，模板语法也越来越强，但是这个核心循环就被遗忘在那里。而且对大搜索而言，前端业务处理和算法极复杂而页面简单，模板引擎开销并不显山露水，可是到了页面复杂得多而业务算法没有这么吃重的产品，大家却都已经忘了模板引擎里有这么一出了。</p>
+
+<p>这种模式在我的职业生涯里常常出现，甚至后来在 Google 比搜索流量还大的 AdSense 前端服务上，我还碰到了几乎一样的状况，而且这次提升的不仅是性能，还是真金白银了。所以，我觉得工程师要养成刨根问底的习惯，不仅去了解底层系统如何工作，更重要的是探寻系统设计背后的前提假设 —— 不管是原始设计还是经年累月的改动，它们可能都基于当时的特定需求和限制做出了最好的选择。但是，当年的设计前提在今天已不复存在，而实现依旧。再加上软件系统是如此的复杂，我们做任何一个事情都要面对无数层把这些不再有效的实现隐藏起来的抽象，这个房子里其实已经遍地是人们视而不见的大象了。</p>
+
+<p>而我眼中的「全栈工程师」，当然不仅要能从前端网页写到后台存储（这个真的是和生活可以自理差不多），更是要能在这么复杂的一个技术栈中找到瓶颈，而不管这瓶颈在技术栈的什么地方，你都有能力和信心去解决它而不会为自己设限。一个全栈工程师总会感到自己不够「全」，视野之外，总有新的天地。再说得高大上一点，就是 Larry Page 给 How Google Works 写的前言里说的「Think from First principle」，我翻译成「究本穷源，格物致知」，性能优化是如此，架构设计是如此，产品设计也一样。</p>
+
+<p>说到前端服务器优化，Facebook 还有更直接的：现在的服务器 CPU 都支持 SMP 和 NUMA 架构，一块主板上的几块 CPU 能协作共享一块大内存。但是，Facebook 前端 PHP 哪来的什么共享内存，完全用不着，这些支持和协商电路完全是在白耗电，双 CPU 共享内存总线更是性能杀手。于是他们跟 Intel 合作把这些多余的电路去掉，把双插槽架构改成更紧凑的单插槽。BOOM! 性能一下提上来了。很简单很没技术含量是不是，我超~爱这种事情的。</p>
+
+<p>在这个点上，我想我得祭出这张 Latency Numbers Every Programmer Should Know 的表了：</p>
+
+<pre><code>Latency Comparison Numbers
+--------------------------
+L1 cache reference                           0.5 ns
+Branch mispredict                            5   ns
+L2 cache reference                           7   ns                      14x L1 cache
+Mutex lock/unlock                           25   ns
+Main memory reference                      100   ns                      20x L2 cache, 200x L1 cache
+Compress 1K bytes with Zippy             3,000   ns        3 us
+Send 1K bytes over 1 Gbps network       10,000   ns       10 us
+Read 4K randomly from SSD*             150,000   ns      150 us          ~1GB/sec SSD
+Read 1 MB sequentially from memory     250,000   ns      250 us
+Round trip within same datacenter      500,000   ns      500 us
+Read 1 MB sequentially from SSD*     1,000,000   ns    1,000 us    1 ms  ~1GB/sec SSD, 4X memory
+Disk seek                           10,000,000   ns   10,000 us   10 ms  20x datacenter roundtrip
+Read 1 MB sequentially from disk    20,000,000   ns   20,000 us   20 ms  80x memory, 20X SSD
+Send packet CA-&gt;Netherlands-&gt;CA    150,000,000   ns  150,000 us  150 ms
+</code></pre>
+
+<p>这是大部分软件程序员要面对的第一层抽象。真的，只要你还是在写要给人用的程序，不管是在做前端网页还是在做 RTB 策略优化，请记住这张表。看看 CPU cache 跟主存的速度区别，再去查查现在的服务器 CPU 普遍的缓存大小，你就知道缓存命中率对性能的影响有多大，你在教科书上学到的各种大 O 复杂度很多时候都还没有选对数据结构和内存布局提高缓存命中率重要。SSD 和机械硬盘，顺序读和随机读是老生长谈了，再看看各级网络延迟，设计分布式架构时，设计前端应用时，也该会心有戚戚焉吧。</p>
+
+<p>当然，跟这个技术栈上的所有东西一样，这些数字，是会变的…… 多核改变了一切，SSD 改变了一切，就是因为他们改变了我们设计软件时的基本假设。我刚入行的时候，多核还没有那么多，SSD 还没能可靠地在服务器上应用，这些触及灵魂深处的改变，又是另一个故事了。</p>
+
+</div>
+
+<div class="footer">
+&mdash; Yuheng<br>Jun 11, 2016
+</div>
+</div>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-60702981-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

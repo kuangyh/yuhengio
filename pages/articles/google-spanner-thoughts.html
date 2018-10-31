@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+<title>Google Spanner 看点</title>
+<meta charset="utf-8">
+<link href="../styles.css" rel="stylesheet">
+<link href='https://fonts.googleapis.com/css?family=Gentium+Basic:400,700' rel='stylesheet' type='text/css'>
+</head>
+<body>
+<div class="page" lang="zh-hans">
+<div class="header">
+<h1><a href="/">(call/cc</a></h1>
+<h2>Never say never</h2>
+</div>
+<div class="article">
+<h1>Google Spanner 看点</h1>
+
+<p><em>文章写于 2012 年 9 月，Spanner 论文刚出来的时候</em></p>
+
+<p>Google Spanner 的論文出來了，這個名字在 Jeff Dean 10 年的一次講座中已經被提到。我到吃貨公司上班的第一天就找了它的文檔來看，現在可以吐一下憋了一年的槽了。</p>
+
+<p>我假定你在看本文前已經至少看過 GFS、BigTable 和 MegaStore 的論文，否則將很難理解論文中提到的技術基礎和技術決定。這是一篇吐槽文，不是 Spanner 論文翻譯或介紹，所以也假定你已經看完了 Spanner 論文。</p>
+
+<p>老實說 Google Spanner 的看點不多，可以很快地列一下。Globally distributed 的需求不是那麼容易遇到，與其各種表示牛B，期待開源版，不如在論文裏汲取營養，各取所需吧。</p>
+
+<p>首先是進一步方便應用開發者。Google Spanner 提供大家熟悉的表模型（其實跟 RDBMS 的表不太是一回事），提供 SQL 支持。甚至用 two-phases commit 實現了分佈事務，這個實現理論上的新意不多（當然實現各種複雜，我這裏只是站著說話不腰疼）性能也是註定的低，關鍵是論文裏說了一句：設計討論中有的spanner開發成員擔心two-phases commit太慢太複雜，但他們的最終結論是，既然業務上避免不了，與其讓應用開發者痛苦地搞個自己的2B不靠譜實現，不如直接做個標準靠譜的，再讓應用開發者想辦法避免它的慢。</p>
+
+<p>我各種贊同這個思路，做 infrastructure 要在兩個目標之間平衡，首先是支持應用開發者高效開發，其次才是保證架構可擴展，支持應用增長。為什麼是這個首先其次呢？應用開發者不爽，做不出好應用，你也別想有啥業務增長，也沒機會解決擴展性不夠好這種富人的煩惱。我一直不理解一些中小網站，放著好好的 MySQL/Postgre 和成熟的 ORM 框架不用，偏要搗鼓什麼 NoSQL, 誰來幫我解釋一下這都是為啥？</p>
+
+<p>接著是數據模型。Google Spanner 的數據模型說白了就是披著 RDBMS 的樹形結構存儲。這種結構是非常符合在綫應用的常見數據模式的，分用戶、分類別…… 最後都能歸納到樹形模式 + 有限的關係運算。真正天女散花式亂 JOIN 的通常只應該在離線分析業務中遇到；而更特殊的在綫需求，例如微博的信息發佈和收聽，則應該專用需求專用系統，不應該直接用通用存儲系統涵蓋了。</p>
+
+<p>樹形結構 + 輕量 RDBMS 功能，這種需求傳統上就是用 MySQL + Sharding 涵蓋的。 其實 Spanner 也沒多神奇，也是在這個思路下做得更細緻更強。值得仔細讀讀的是它怎麼把樹形結構映射到一個連續空間，怎麼（以及為什麼）把 Directory 看成基本的分佈單位。完成了這一步，剩下的問題基本上已經被 BigTable 解決過了，例如 spanner 沒有惱人的 re-sharding, 而是用 tablet 分裂來代替，實現方法在 BigTable 論文裏有非常詳細的敘述。但說到底其基本思路還是 1. 局部性原理 2. 數據分片，普通青年把這叫做 sharding，騰訊把這叫分 set，在 Spanner 不管叫啥還是這東東。</p>
+
+<p>最後是 Paxos 使用和純屬作弊的 TrueTime. Spanner 要求可以實現全球高一致性同步，這個也是業務需求使然，在數據同步中引入 Paxos 同步也幾乎是必然選擇，這沒什麼好說的。分佈式事務的 two-phases commit 也是標準實現，沒什麼特別。</p>
+
+<p>然則，你要做分佈式事務，並發的兩個事務你要麼想辦法處理衝突，要麼就像個辦法給他們排個先後的序。這是分佈式系統裏經典的時序問題，Spanner 提出了一個會讓 Leslie Lamport 吐血的辦法，Lamport 寫了 N 篇 brain-fu*king 級別的論文說明此事之不可強求。按 Lamport 的看法，你要在分佈式系統裏拿到全局時序，你就得用 Paxos，你搞全球 Paxos（光速是有限的，請自行計算搞一次跨洲 Paxos 要多久），這必然會成為一個性能瓶頸。可是 Jeff Dean 說，切，我弄個絕對時間，GPS + 原子鐘，這事就成了，吹咩。非常彪悍暴力的思路，工程型人士想出來的東西。不過就是 work，排臺大叫作弊之於，你也只得拜服。</p>
+
+<p>好了，我看到的 Google Spanner 就是這麼多東西，都不是什麼 magic，有啟發，有無奈，請各種期待下一季。</p>
+
+</div>
+
+<div class="footer">
+&mdash; Yuheng<br>Apr 15, 2015
+</div>
+</div>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-60702981-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

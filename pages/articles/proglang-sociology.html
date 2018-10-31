@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+<title>编程语言社会学</title>
+<meta charset="utf-8">
+<link href="../styles.css" rel="stylesheet">
+<link href='https://fonts.googleapis.com/css?family=Gentium+Basic:400,700' rel='stylesheet' type='text/css'>
+</head>
+<body>
+<div class="page" lang="zh-hans">
+<div class="header">
+<h1><a href="/">(call/cc</a></h1>
+<h2>Never say never</h2>
+</div>
+<div class="article">
+<h1>编程语言社会学</h1>
+
+<p>「编程语言只是个工具。」很多人这样说。</p>
+
+<p>是的，编程语言「只是」一个工具，但作为开发人员最主要的工具，编程语言的语法就是开发者的用户界面。很大程度上，编程语言的风格决定了开发人员的思维风格，编程语言的局限也会成为开发人员的思维局限。所以我一直觉得，语言设计者是得学点心理学，懂点用户体验的，可惜 PL 学界似乎很少见到这方面的研究（有个<a href="http://www.ppig.org/">名字很好玩的不起眼的会</a>） —— 我认为很多学术上很好的语言完全没流行起来，可以归咎于此。</p>
+
+<p>编程语言还是个社交工具，程序源代码是开发团队成员最主要的信息交流媒介（你什么时候见过程序员主动写文档了？）。所以，就跟设计社交应用一样，设计编程语言可能还真得懂点社会学，UC Berkeley <a href="https://lmeyerov.github.io/projects/socioplt/viz/index.html">还真有相关研究</a>。编程语言决定团队成员思维方式的同时，也决定他们怎么交流、协作，显著地影响了团队文化。组建团队，准备写下第一行代码的时候，选择什么编程语言，也就不纯粹是技术问题了。</p>
+
+<p>从这个角度看，一些设计得很糟糕的语言对团队文化反而是有利的。比如 PHP, MIT Technology Review 的文章 <a href="http://www.technologyreview.com/review/536356/toolkits-for-the-mind/">Toolkits of Mind</a> 里讲述了它对 Facebook 的影响：它门槛低，而又能力局限无法支撑复杂设计，反而能够鼓励简单直接解决问题，容忍不完美和丑陋实现的所谓 Hack 文化。可以想象，来到公司，看着那一坨 PHP 代码，你不会有类似看到巴特农神庙的精妙设计的神圣感，你不会空谈什么设计模式，测试驱动，而是和所有人一样，逮着段代码，一通胡改，move fast and break things 去了。PHP 的反面就是<a href="http://kuangyh.github.io/articles/i-hate-java.html">我极端憎恨的 Java</a>, 虽然门槛同样低（也就是你会遇到同样糟糕的开发者），但 Java 设计良好，JVM 效率高，足以支撑复杂的设计，也鼓励复杂、庞大的软件。就像 <a href="https://michaelochurch.wordpress.com/2012/04/13/java-shop-politics/">Java Shop Politics</a> 里写的一样，Java 鼓励复杂设计的同时，其实也在鼓励与软件结构一一对应的层级、僵化的管理。这么看来，如果谁拿刀架我头上要我在 PHP 和 Java 项目里选一个，我还是去折腾屎一样的 PHP 比较合算。</p>
+
+<p>另一方面，一些特别强大的语言或语言特性也值得警惕。Paul Graham 在 <a href="http://www.paulgraham.com/avg.html">Beating the Averages</a> 里盛赞了 LISP 语言，LISP 的强大来源于它的 macro 系统，你可以用 LISP macro 定义 DSL 乃至任何符合自己需要的语言，这给他们这些聪明人带来了无限的自由。但是，当你的团队扩大，不可避免地招来了普通人的时候，情况就变化了。LISP 这种无限定制能力是在鼓励「魔法」—— 一种超越普通人理解的 LISP 语言常识的能力。运气比较好的，上层管理者会<a href="http://www.flownet.com/gat/jpl-lisp.html">顺应民意杀掉你的项目</a>；运气糟糕的，你会发现，团队里越来越多的人会从尝试理解魔法转到崇拜魔法而不求甚解，他们不可能通过发明新魔法来提高效率，而只会以懂得使用魔法为荣，它们的眼界和野心就被圈定了。Java 没有 LISP 这样的能力，但它有无数的魔法框架，你能看到一模一样的后果。当你来到一个团队，面对几十万行的代码，被告知，加上这个那个 Annotation, 你的对象就会被自动创建，各种参数注入成功，你面对的就是魔法。你无从了解整个系统的架构，你无法解释程序是怎么启动运行的，无法找到一个接口的实现，你甚至不知道你手上这个该死的对象到底是怎么被创建出来的，你在其他环境积累的编程知识根本无法解释这一切。你只好老老实实地从「最基本」学起，按照他们教的，加上这么一堆 Annotation, 写完这个类，如果有一天，你发现自己也能教别人怎么用这些东西了，你难免也会沾沾自喜起来。</p>
+
+<p>这些编程语言对团队的影响，也许不是必然的。你可以在 PHP 里搞出超级复杂的框架，也可以在 Java 上做出简单清晰的设计，你可以很努力地在团队内部抵御工具的文化趋势，树立另一种文化。但是在今天，你很难避免使用开源软件，围绕语言的整个社区的社会气氛就不是你可以控制的了。C++ 可能是难得的可以让各个团队建立<a href="https://google-styleguide.googlecode.com/svn/trunk/cppguide.html">自己的内部规范</a>，营造截然不同的团队风格的例子了。C++ 超级庞大的语言集迫使不同团队根据自身需要裁剪出不同的语言子集 —— 其实差不多是不同的语言了，导致 C++ 开源库很难像 Java 库一样拿来就用，让团队不受外界影响发展自己的小社会成为可能，大概也算是因祸得福了。</p>
+
+</div>
+
+<div class="footer">
+&mdash; Yuheng<br>Jul 05, 2015
+</div>
+</div>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-60702981-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

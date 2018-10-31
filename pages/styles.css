@@ -1,0 +1,112 @@
+.page {
+  margin: 0 auto;
+  max-width: 42em;
+  font-size: 18px;
+  padding-left: 5%;
+  padding-right: 5%;
+  width: 90%;
+  padding-bottom: 30px;
+  color: #333;
+  font-family: "Gentium Basic", Georgia, "Source Han Sans CN", "PingFang SC", "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+}
+
+.header {
+  padding-bottom: 1em;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 400%;
+  color: #444;
+  font-weight: normal;
+  line-height: 1;
+}
+
+.header h1 a {
+  text-decoration: none;
+  color: #444;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 120%;
+  font-weight: normal;
+  padding-left: 1em;
+}
+
+.article {
+  line-height: 1.75;
+}
+
+.article h1 {
+  font-size: 200%;
+}
+
+.article h2 {
+  font-size: 150%;
+}
+
+.article h3 {
+  font-size: 125%;
+}
+
+.article a:before {
+  content: '[';
+  color: #999;
+}
+
+.article a:after {
+  content: ']';
+  color: #999;
+}
+
+.article a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.article a:visited {
+  color: inherit;
+}
+
+.article a:hover {
+  color: black;
+  text-decoration: underline;
+}
+
+.article p {
+  text-indent: 2em;
+  text-align: justify;
+}
+
+.article pre {
+  margin-left: 0.5em;
+  border-left: solid 0.5em #ddd;
+  padding-left: 1em;
+  font-family: "Menlo", "Monaco", "Consolas", "Source Han Sans CN", "PingFang SC", "Hiragino Sans GB", "Microsoft Yahei", monospace;
+}
+
+.article code {
+  font-family: "Menlo", "Monaco", "Consolas", "Source Han Sans CN", "PingFang SC", "Hiragino Sans GB", "Microsoft Yahei", monospace;
+}
+
+.article code {
+  color: #555;
+}
+
+.article blockquote {
+  margin-left: 0.5em;
+  border-left: solid 0.5em #ddd;
+  padding-left: 1em;
+  color: #555;
+}
+
+.article blockquote p {
+  text-indent: 0;
+}
+
+.footer {
+  padding-top: 4em;
+  text-align: right;
+  color: #999;
+}

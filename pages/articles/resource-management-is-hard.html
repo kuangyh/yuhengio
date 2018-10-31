@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+<title>资源管理是个本质难题</title>
+<meta charset="utf-8">
+<link href="../styles.css" rel="stylesheet">
+<link href='https://fonts.googleapis.com/css?family=Gentium+Basic:400,700' rel='stylesheet' type='text/css'>
+</head>
+<body>
+<div class="page" lang="zh-hans">
+<div class="header">
+<h1><a href="/">(call/cc</a></h1>
+<h2>Never say never</h2>
+</div>
+<div class="article">
+<h1>资源管理是个本质难题</h1>
+
+<p>设计资源管理策略很困难。在一个大型系统中，你需要很仔细地规划从内存、网络句柄到抽象资源模块和对象的生命周期，确定谁来创建和持有资源，确定资源的共享范围，保证资源管理策略能支持种类繁多不断变化的业务用例，如果资源生命周期是接口的一部分，保持接口一致和稳定就又是一个难题。若因需求变化而需要改变资源管理策略，难度绝不亚于重新设计一套策略。</p>
+
+<p>若按照《没有银弹》中的分类，这是一个本质性的设计难题，根植于产品和业务，以及资源有限的物理现实。《没有银弹》中 ”本质问题“ 和 ”附属问题“ 的划分是一个重要的思维工具，在这里，重要的不是有没有银弹的结论，而是提醒我们，对一个新技术，新方案，我们必须区分清楚，它能解决的问题领域，能解决本质问题还是附属问题。</p>
+
+<p>一个新技术方案，要么是提供了新方法去解决附属问题，减轻解决整个问题的负担；要么是提供一个无需人去参与的，在一定范围内解决本质问题的完整方案。C++ 的 RAII 模式和 unique_ptr 提供了解决资源管理附属问题的工具 —— 它一方面提供一个有效的设计模式，另一方面 unique_ptr 作为语言工具帮你避免一些愚蠢的错误 —— 它不能代替资源管理设计，但它显然提供了帮助。自动垃圾收集完整解决了一个非常限定的资源管理问题：资源不太紧张，没有硬实时要求的系统环境下的内存管理问题（我不知道定语加够了没），用户完全不用管。它们都是被大量实践证明了的好东西。</p>
+
+<p>然而，多年来开发者社区很喜欢干的，就是把一个解决附属问题的技术方案，看成解决本质问题的银弹；把解决部分问题的方法盲目扩展到全部问题 —— 也许焦油坑中的我们是太渴望银弹了吧。这会造成很可怕的后果，我在《<a href="/articles/i-hate-java.html">为什么我讨厌 Java</a>》说的就是这个情景，Java 从语言、市场宣传到社区都让人以为程序设计是一个只要熟读最佳实践套用设计模式就能搞定的简单问题，导致不合格的人进来设计了大量不合格的产品，像癌症一样侵蚀掉整个社区。</p>
+
+<p>资源管理问题上，Rust 是最近的当红炸子鸡，社区热情洋溢的气氛中，我也渐渐嗅出<a href="http://blog.rust-lang.org/2015/04/10/Fearless-Concurrency.html">银弹的味道</a> 了。Rust 比 C++ 的 RAII 和智能指针更进一步，提供了编译期的生命周期分析和检查，预防你做一些蠢事。这当然是好东西，人再聪明也有犯傻的时候嘛。但它比 C++ 多了的，可就这么一点了， 如果只因为能防止自己做蠢事就如此兴奋，那事情就有点可疑了。我经常看到类似<a href="http://qr.ae/L8TwF">Rust编译检查让你学习正确的C++写法</a>的说法，这正是我的担忧 —— 一堆在资源管理设计上不合格，搞不定 C++ 的开发者，因为 Rust 的好工具，把资源管理误认为简单问题，涌入 Rust 开发社区，开始劣币驱逐良币的必然进程。</p>
+
+<p>话音刚落，果然就<a href="https://github.com/rust-lang/rust/issues/24292">出事</a>了：引用计数的 Rc 在循环引用时破坏了 thread::scope 的假设，结果导致访问释放后的内存。好吧，这倒不能说 Rust 的开发团队蠢，我们也可以像他们一样，全怪到 Rc 头上。可是说回来，为什么这个语言要有引用计数指针呢？</p>
+
+<p>C++ 里的引用计数智能指针 shared_ptr, 也曾被当成某种银弹。就像开头所说的，设计资源生命周期很困难，没有那么好的设计能力，搞不定设计问题的开发者，发现 shared_ptr 这等好物，一定会欢欣鼓舞，再也不去绞尽脑汁做生命周期设计，用 shared_ptr 通杀一切。无怪乎许多 C++ 项目里，shared_ptr 满天飞了。</p>
+
+<p>引用计数本身不坏，而且它还就是一个有效的内存垃圾收集实现方法，跟 mark-n-sweep 结合克服它循环引用无法回收的问题，就是一个很不错的低延迟垃圾收集实现 (CPython 就是使用这个方法)。但是，把这个内存管理方法扩展到管理其他资源，比如锁，就又要出事了，内存回收慢了甚至泄漏点都不是啥大事，一个锁释放迟了是要死人的。ScopeLock 能很好地完成 RAII 锁管理，但前提是你自己先把互斥范围设计清楚 —— 没人能替你做这个设计，而 shared_ptr 正是放弃了对生命周期的明确管理，一不留神让哪个长命对象七弯八绕指到锁上，那就可以等死了。不顾方案前提把对限定问题的解决扩展到全体，前面 Rust 的 bug, 本质也源于此。</p>
+
+<p><a href="https://google-styleguide.googlecode.com/svn/trunk/cppguide.html#Ownership_and_Smart_Pointers">Google C++ Style Guide</a> 要求尽量避免使用 shared_ptr, 逼迫开发者去做资源生命周期设计；只有引用计数的 Objective-C 把 retain 和 release 弄成手动的，让开发者脑子里总是紧绷着 ownership 的弦。门槛一高，找死的人就少了。可是 Rust 看来就没有这个运气了，能力不济，没有强力纪律约束的 C++ 项目最终都无法避免 shared_ptr 满天飞的乱局，Rust 看来也不能例外。</p>
+
+<p>我想起我在百度设计的一个 C++ 应用框架，里面一个重要的设计就是 ResourcePool：在一个请求处理过程中创建的对象，统统扔到这个 pool 里去，之后随你指针乱指乱造，最后请求处理完 ResourcePool 析构把所有东西都释放掉。这给请求处理提供了一个整齐划一的生命周期，它处理的问题领域很狭窄 —— 无状态请求处理，短 session，不跨线程（可能还有其他限定），但在它的问题领域里，它绝对的简单暴力有效。</p>
+
+<p>我觉得 Rust 是一个挺好的警示。通用语言和通用框架的设计者，常常能看到自己一个设计解决大量的实际问题，这时就很容易产生一种银弹幻觉，并且会有意无意地把这种幻觉传达给用户社区。但是，所有的 ``通用'' 都是相对的，银弹幻觉背后，往往是问题领域的不清晰，不清楚自己在解决什么问题，就以为自己能解决所有问题。去年 Lang.NEXT 上 Bjarne Stroustrup 老爷子的 <a href="https://channel9.msdn.com/Events/Lang-NEXT/Lang-NEXT-2014/Keynote">keynote</a> 上也提到，对于 C++ 这种适用领域如此广泛的语言，定义问题领域更为重要 —— 解决好要解决的问题，把解决不了的本质问题留给有能力的领域专家。定义问题领域，也是设计者功力的体现。</p>
+
+</div>
+
+<div class="footer">
+&mdash; Yuheng<br>Apr 16, 2015
+</div>
+</div>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-60702981-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>
