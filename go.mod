@@ -1,1 +1,1 @@
-module yuheng.io/r/yuhengio
+module yuheng.io/yuhengio

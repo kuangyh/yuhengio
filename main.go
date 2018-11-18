@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -10,43 +9,28 @@ import (
 	"strings"
 )
 
-func withHTMLSuffix(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		name := filepath.Base(r.URL.Path)
-		if len(name) > 0 && name != "/" && !strings.Contains(name, ".") {
-			r.URL.Path += ".html"
-		}
-		h.ServeHTTP(w, r)
-	})
+type server struct {
+	pageHandler http.Handler
+	goProjects  []string
 }
 
-var goRedirectHTML = template.Must(template.New("goRedirect").Parse(`
-<html>
-<head>
-	<title>Package yuheng.io/r/{{.Path}}</title>
-	<meta name="go-import" content="yuheng.io/r/ git https://github.com/kuangyh"></meta>
-</head>
-<body>
-<h1>Package yuheng.io/r/{{.Path}}</h1>
-<ul>
-	<li><a href="https://godoc.org/yuheng.io/r/{{.Path}}">Document</a></li>
-</ul>
-</body>
-</html>
-	`))
-
-func redirectGoPackage(w http.ResponseWriter, r *http.Request) {
-	if !strings.HasPrefix(r.URL.Path, "/r/") {
+func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.FormValue("go-get") == "1" {
+		for _, p := range s.goProjects {
+			if !strings.HasPrefix(r.URL.Path[1:], p) {
+				continue
+			}
+			w.Write([]byte(fmt.Sprintf(`<meta name="go-import" content="yuheng.io/%s git https://github.com/kuangyh/%s">`, p, p)))
+			return
+		}
 		http.Error(w, "package not found", 404)
+		return
 	}
-	data := struct {
-		Path string
-	}{
-		Path: r.URL.Path[3:],
+	name := filepath.Base(r.URL.Path)
+	if len(name) > 0 && name != "/" && !strings.Contains(name, ".") {
+		r.URL.Path += ".html"
 	}
-	if err := goRedirectHTML.Execute(w, data); err != nil {
-		http.Error(w, "wtf", 500)
-	}
+	s.pageHandler.ServeHTTP(w, r)
 }
 
 func main() {
@@ -54,8 +38,14 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	http.Handle("/r/", http.HandlerFunc(redirectGoPackage))
-	http.Handle("/", withHTMLSuffix(http.FileServer(http.Dir("pages"))))
+	s := &server{
+		pageHandler: http.FileServer(http.Dir("pages")),
+		goProjects: []string{
+			"yuhengio",
+			"swiffy",
+		},
+	}
+	http.Handle("/", s)
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
