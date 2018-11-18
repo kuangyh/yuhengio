@@ -1,1 +1,1 @@
-module github.com/kuangyh/yuhengio
+module yuheng.io/r/yuhengio
