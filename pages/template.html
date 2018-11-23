@@ -1,9 +1,9 @@
 <!doctype html>
 <html>
 <head>
-<title>%(title)s</title>
+<title>{{.title}}</title>
 <meta charset="utf-8">
-<link href="%(basepath)s/styles.css" rel="stylesheet">
+<link href="{{.basepath}}/styles.css" rel="stylesheet">
 <link href='https://fonts.googleapis.com/css?family=Gentium+Basic:400,700' rel='stylesheet' type='text/css'>
 </head>
 <body>
@@ -13,11 +13,11 @@
 <h2>Never say never</h2>
 </div>
 <div class="article">
-%(content)s
+{{.content}}
 </div>
 
 <div class="footer">
-&mdash; Yuheng<br>%(update_time)s
+&mdash; Yuheng<br>{{.date}}
 </div>
 </div>
 <script>

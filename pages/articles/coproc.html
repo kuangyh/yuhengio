@@ -19,7 +19,7 @@
 
 <h2>简介</h2>
 
-<p>本文介绍一个正在开发的 C++ 服务框架 coproc 在并发处理模型上的设计思路. coproc 基于 libevent 和基本的 Reactor 模型, 在此之上逐步实现了轻进程以及类似 UNIX fork-wait 的并发模型, 并利用 ucontext coroutine 机制实现了真正的"进程"上下文切换. 从而实现从事件驱动到顺序处理, 从异步到同步等待的模型进化. 在实现 UNIX 传统并发抽象的同时, 保持了相当高的运行效率.</p>
+<p>本文介绍一个正在开发的 C++ 服务框架 coproc 在并发处理模型上的设计思路. coproc 基于 libevent 和基本的 Reactor 模型, 在此之上逐步实现了轻进程以及类似 UNIX fork-wait 的并发模型, 并利用 ucontext coroutine 机制实现了真正的&rdquo;进程&rdquo;上下文切换. 从而实现从事件驱动到顺序处理, 从异步到同步等待的模型进化. 在实现 UNIX 传统并发抽象的同时, 保持了相当高的运行效率.</p>
 
 <h2>Reactor</h2>
 
@@ -30,9 +30,10 @@
   void OnSockEvent(int listen_fd, int ev) {
     int sock = accept(listen_fd, NULL, 0);
     ...
-  }
-}
 </code></pre>
+
+<p>	  }
+    }</p>
 
 <p>利用 libevent 作为事件驱动器, 经过少许包装, 让 Reactor 可以注册到句柄事件上, 回调 OnSockEvent, 这段代码就可以运作了, 非常简单.</p>
 
@@ -40,7 +41,7 @@
 
 <h2>模型改进</h2>
 
-<p>"监听接收新连接" 这个任务从文字上就是事件驱动的. 但 "从 socket 读取 N 个字节" 这个任务不是, 它本来就是过程式的. Web 应用服务所要处理的绝大多数业务属于后者, 从模型上并不与事件驱动模型吻合. 将一个有复杂业务流程和 IO 交互方式的 Web 应用完全组织成事件驱动的 Reactor 方式, 无论设计, 编程, 调试还是后续的维护都是一个极大的挑战.</p>
+<p>&ldquo;监听接收新连接&rdquo; 这个任务从文字上就是事件驱动的. 但 &ldquo;从 socket 读取 N 个字节&rdquo; 这个任务不是, 它本来就是过程式的. Web 应用服务所要处理的绝大多数业务属于后者, 从模型上并不与事件驱动模型吻合. 将一个有复杂业务流程和 IO 交互方式的 Web 应用完全组织成事件驱动的 Reactor 方式, 无论设计, 编程, 调试还是后续的维护都是一个极大的挑战.</p>
 
 <p>我们需要在 Reactor 模型之上实现异步的 调用-返回语义, 这是过程式处理逻辑中最常见的模式:</p>
 
@@ -176,7 +177,7 @@
 </div>
 
 <div class="footer">
-&mdash; Yuheng<br>Apr 16, 2015
+&mdash; Yuheng<br>
 </div>
 </div>
 <script>

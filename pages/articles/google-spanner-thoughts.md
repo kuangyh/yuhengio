@@ -1,8 +1,7 @@
 @title Google Spanner 看点
+@date Sep 2012
 
 # Google Spanner 看点
-
-*文章写于 2012 年 9 月，Spanner 论文刚出来的时候*
 
 Google Spanner 的論文出來了，這個名字在 Jeff Dean 10 年的一次講座中已經被提到。我到吃貨公司上班的第一天就找了它的文檔來看，現在可以吐一下憋了一年的槽了。
 
