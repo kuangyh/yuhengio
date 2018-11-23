@@ -14,7 +14,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/russross/blackfriday"
+	blackfriday "github.com/russross/blackfriday/v2"
 )
 
 var spaces = regexp.MustCompile("\\s+")
