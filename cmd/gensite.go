@@ -82,7 +82,7 @@ func parse(r io.Reader, vars varMap) (varMap, []byte, error) {
 	return vars, out.Bytes(), nil
 }
 
-func generatePage(tpl *template.Template, basedir, srcFn string) error {
+func generatePage(tpl *template.Template, srcFn string) error {
 	dstFn := srcFn[:len(srcFn)-len(filepath.Ext(srcFn))] + ".html"
 	src, err := os.Open(srcFn)
 	if err != nil {
@@ -125,7 +125,7 @@ func main() {
 		if info.IsDir() || filepath.Ext(path) != ".md" {
 			return nil
 		}
-		if err := generatePage(tpl, basedir, path); err != nil {
+		if err := generatePage(tpl, path); err != nil {
 			log.Printf("Generate page failed %s, %v, skipped", path, err)
 			return nil
 		}
