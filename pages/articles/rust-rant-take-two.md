@@ -1,4 +1,3 @@
-@title 为什么我没事就黑 Rust
 @date Jul 27, 2015
 
 # 为什么我没事就黑 Rust

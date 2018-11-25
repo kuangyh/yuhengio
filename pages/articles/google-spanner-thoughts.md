@@ -1,4 +1,3 @@
-@title Google Spanner 看点
 @date Sep 2012
 
 # Google Spanner 看点

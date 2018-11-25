@@ -1,4 +1,3 @@
-@title Sawzall, 及大数据的玩法
 @date Oct 02, 2016
 
 # Sawzall, 及大数据的玩法

@@ -1,8 +1,6 @@
-@title 并发处理模型, 从 Reactor 到 Coproc
+# 并发处理模型, 从 Reactor 到 Coproc
 
 *这是2010年左右的老文，对于分析理清各种流行并发模型，它还是有帮助的*
-
-# 并发处理模型, 从 Reactor 到 Coproc
 
 ## 简介
 

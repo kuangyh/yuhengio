@@ -1,5 +1,3 @@
-@title How Google Works
-
 # How Google Works
 
 译文计划。

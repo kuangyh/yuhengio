@@ -1,4 +1,3 @@
-@title 我为什么讨厌 Java
 @date May 12, 2015
 
 # 我为什么讨厌 Java

@@ -1,4 +1,3 @@
-@title My Setup
 @date Jul 2013
 
 # My Setup

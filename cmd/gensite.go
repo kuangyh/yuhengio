@@ -22,11 +22,19 @@ var spaces = regexp.MustCompile("\\s+")
 type varMap map[string]interface{}
 
 func parse(r io.Reader, vars varMap) (varMap, []byte, error) {
+	type parserState int
+	const (
+		parseVar parserState = iota
+		parseTitle
+		parseBody
+	)
+
 	br := bufio.NewReader(r)
 	out := &bytes.Buffer{}
 	if vars == nil {
 		vars = varMap{}
 	}
+	state := parseVar
 	for {
 		line, err := br.ReadBytes('\n')
 		if err == io.EOF {
@@ -35,23 +43,40 @@ func parse(r io.Reader, vars varMap) (varMap, []byte, error) {
 		if err != nil {
 			return nil, nil, err
 		}
-
-		if cmd := strings.TrimRight(string(line), " \t\n"); strings.HasPrefix(cmd, "@") {
+	byState:
+		switch state {
+		case parseVar:
+			cmd := strings.TrimRight(string(line), " \t\n")
+			if cmd != "" && !strings.HasPrefix(cmd, "@") {
+				state = parseTitle
+				goto byState
+			}
+			if cmd == "" {
+				break
+			}
 			pair := spaces.Split(cmd[1:], 2)
 			if len(pair) != 2 {
 				return nil, nil, fmt.Errorf("Invalid command format %s", cmd)
 			}
 			vars[pair[0]] = pair[1]
-		} else if cmd != "" {
-			// The first non-empty, non-cmd line
+		case parseTitle:
+			title := strings.TrimRight(string(line), " \t\n")
+			if !strings.HasPrefix(title, "# ") {
+				state = parseBody
+				goto byState
+			}
 			out.Write(line)
-			// We can write all remain in one shot as we should assume no other commands follows
+			if _, exists := vars["title"]; !exists {
+				vars["title"] = strings.TrimSpace(title[2:])
+			}
+			state = parseBody
+		case parseBody:
+			out.Write(line)
 			remain, err := ioutil.ReadAll(br)
 			if err != nil {
 				return nil, nil, err
 			}
 			out.Write(remain)
-			break
 		}
 	}
 	return vars, out.Bytes(), nil
@@ -59,25 +84,13 @@ func parse(r io.Reader, vars varMap) (varMap, []byte, error) {
 
 func generatePage(tpl *template.Template, basedir, srcFn string) error {
 	dstFn := srcFn[:len(srcFn)-len(filepath.Ext(srcFn))] + ".html"
-	vars := varMap{}
-	baseFn := filepath.Base(srcFn)
-	// .title defaults to filename without extension
-	vars["title"] = baseFn[:len(baseFn)-len(filepath.Ext(baseFn))]
-
-	// .basepath
-	rel, err := filepath.Rel(filepath.Dir(srcFn), basedir)
-	if err != nil {
-		return err
-	}
-	vars["basepath"] = rel
-
 	src, err := os.Open(srcFn)
 	if err != nil {
 		return err
 	}
 	defer src.Close()
 
-	vars, mdContent, err := parse(src, vars)
+	vars, mdContent, err := parse(src, nil)
 	if err != nil {
 		return err
 	}

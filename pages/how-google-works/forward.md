@@ -1,5 +1,3 @@
-@title Forward
-
 # 前言
 
 by Larry Page.
