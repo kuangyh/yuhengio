@@ -10,6 +10,10 @@
   font-family: "Gentium Basic", Georgia, "Source Han Sans CN", "PingFang SC", "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
 }
 
+img {
+  max-width: 40em;
+}
+
 .header {
   padding-bottom: 1em;
 }

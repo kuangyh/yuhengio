@@ -14,6 +14,10 @@
 
 > “I'd spell creat with an 'e'.” --- Ken Thompson
 
+![creat_with_e](/images/creat_with_e.jpg)
+
+*Photo credit: [@_rsc](https://twitter.com/_rsc)*
+
 害我打 O_CREAT 打习惯了这么多年，现在非要我改写 O_CREATE, 那么久了我还是写一次错一次。
 
 坑人不带坑两次的好吗。
