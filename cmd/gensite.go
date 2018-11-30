@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -72,11 +71,9 @@ func parse(r io.Reader, vars varMap) (varMap, []byte, error) {
 			state = parseBody
 		case parseBody:
 			out.Write(line)
-			remain, err := ioutil.ReadAll(br)
-			if err != nil {
+			if _, err := io.Copy(out, br); err != nil {
 				return nil, nil, err
 			}
-			out.Write(remain)
 		}
 	}
 	return vars, out.Bytes(), nil
