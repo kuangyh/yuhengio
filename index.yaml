@@ -1,9 +1,0 @@
-indexes:
-
-- kind: v1/ingest/entry
-  ancestor: no
-  properties:
-  - name: Dataset
-  - name: IngestTimeUsec
-    direction: asc
-
