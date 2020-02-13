@@ -17,6 +17,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("go-get") == "1" {
 		if r.URL.Path == "/" {
 			http.Error(w, "no package", 404)
+			return
 		}
 		// assume first section of the path is repository name
 		repo := strings.Split(r.URL.Path[1:], "/")[0]
