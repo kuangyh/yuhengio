@@ -12,6 +12,7 @@
 
 ## Hackers and painters
 
+- [Nothing works and no one knows why](/articles/nothing-works-and-no-one-knows-why)
 - [Sawzall, 及大数据的玩法](/articles/sawzall)
 - [A full stack engineer never allocates from heap](/articles/fullstack)
 - [Flume](/articles/flume)
