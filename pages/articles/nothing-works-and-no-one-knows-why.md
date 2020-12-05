@@ -1,3 +1,5 @@
+@date Dec 02, 2020
+
 # Nothing works and no one knows why
 
 2018年初，我开始跟Google内部都很少人知道的[Robotics at Google](https://research.google/teams/brain/robotics/)接触。在此之前，我作为YouTube TV负责数据和增长方向的tech lead, 把这个产品从无到有，从零做成了一个不错的业务，项目步入了按部就班的良性循环，我也开始寻找职业生涯的下一个大问题。
