@@ -5,14 +5,9 @@
 - i@yuheng.io
 - [Readings](readings)
 
-
 ## Nothing works and no one knows why
 
 - [Nothing works and no one knows why](articles/nothing-works-and-no-one-knows-why)
-
-## Thought experiments
-
-- [一个电子阅读的价格模型](articles/reader-cost-model)
 
 ## Hackers and painters
 
@@ -27,9 +22,10 @@
 - [Google Spanner 看点](articles/google-spanner-thoughts)
 - [并发处理模型, 从 Reactor 到 Coproc](articles/coproc)
 
-## Backlog
+## You are not expected to understand this
 
 - [中国计算机科技 1972 - 1980：一个美国的视角](articles/china-cs-legacy)
+- [一个电子阅读的价格模型](articles/reader-cost-model)
 - [My Setup 2015](/articles/my-setup-2015), [2014](/articles/my-setup-2014), [2013](/articles/my-setup).
 - [在这里，读懂中国](/articles/china)
 - [两则故事](/articles/two-tales)
